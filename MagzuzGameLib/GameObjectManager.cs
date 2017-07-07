@@ -38,7 +38,7 @@ namespace MagzuzGameLib
         /// <param name="spritebatch">The spritebatch used to draw GameObjects</param>
         public void Draw(SpriteBatch spritebatch)
         {
-            foreach (GameObject go in gameObjects)
+            foreach (GameObject go in gameObjects.GetObjects(game.renderArea))
             {
                 go.Draw(spritebatch);
             }
@@ -50,7 +50,7 @@ namespace MagzuzGameLib
         /// <param name="gameTime">The <see cref="GameTime"/> parameter from <see cref="Game.Update(GameTime)"/> </param>
         public void Update(GameTime gameTime)
         {
-            foreach (GameObject go in gameObjects)
+            foreach (GameObject go in gameObjects.GetObjects(game.renderArea))
             {
                 go._update(gameTime);
             }
