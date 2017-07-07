@@ -7,20 +7,20 @@ namespace MagzuzGameLib
     public abstract class MagzuzGame : Game
     {
 
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        protected GraphicsDeviceManager graphics;
+        protected SpriteBatch spriteBatch;
 
         /// <summary>
         /// How many units outside the game view the render area will extend
         /// </summary>
-        float renderAreaExtend;
+        public readonly int renderAreaExtend;
 
         /// <summary>
         /// The area that will be rendered. Anything outside this area will not be processed
         /// </summary>
-        Rectangle renderArea;
+        public Rectangle renderArea { get; protected set; }
 
-        GameObjectManager gameObjectManager;
+        public readonly GameObjectManager gameObjectManager;
 
         public Camera camera = new Camera();
 
@@ -32,13 +32,17 @@ namespace MagzuzGameLib
 #endregion
         public MagzuzGame()
         {
-            gameObjectManager = new GameObjectManager(this, new Rectangle(-100, 100, 200, 200));
+            gameObjectManager = new GameObjectManager(this, renderArea);
         }
 
         #region Initialization
         protected override void Initialize()
         {
             camera.position = Vector2Helper.GetViewportCenter(GraphicsDevice.Viewport);
+
+            Rectangle worldRect = camera.getWorldRect(Window);
+
+            renderArea = new Rectangle(worldRect.Location.X-renderAreaExtend, worldRect.Y+renderAreaExtend, worldRect.Width+renderAreaExtend,worldRect.Height+renderAreaExtend);
             base.Initialize();
         }
         #endregion
@@ -47,6 +51,10 @@ namespace MagzuzGameLib
         protected override void Update(GameTime gameTime)
         {
             update(gameTime);
+            if (camera.hasMoved)
+            {
+                renderArea = camera.getWorldRect(Window);
+            }
             base.Update(gameTime);
         }
 
@@ -76,7 +84,7 @@ namespace MagzuzGameLib
         protected virtual void PreDraw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, null, null, null, null, camera.getTransformation(GraphicsDevice));
         }
 
         /// <summary>
